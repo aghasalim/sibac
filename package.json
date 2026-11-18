@@ -1,0 +1,14 @@
+{
+  "name": "sibac",
+  "version": "0.1.0",
+  "description": "SIBA Code: a coding agent for your terminal. It asks before every file change and command, and works with any OpenAI-compatible endpoint and your own key.",
+  "bin": { "sibac": "sibac.js" },
+  "files": ["sibac.js", "README.md", "LICENSE"],
+  "scripts": { "test": "node test.js" },
+  "engines": { "node": ">=18" },
+  "keywords": ["cli", "coding-agent", "terminal", "ai", "openai-compatible", "siba"],
+  "author": "SIBA (https://siba.az)",
+  "homepage": "https://siba.az",
+  "repository": "github:aghasalim/sibac",
+  "license": "MIT"
+}
