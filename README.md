@@ -184,7 +184,7 @@ Your task, the files sibac reads, the output of the commands it runs, the skill 
 
 Conversations are saved as JSON in `~/.sibac/sessions/`, per folder, for `--continue` and `/resume`. They hold the messages (including file contents the agent read) and never the key. Delete the folder to forget them.
 
-## Limits in 0.2.2
+## Limits in 0.2.3
 
 - The hosted line is free and shared. At this release: 10 requests a minute and 200 a day per address (60 a minute and 2,000 a day with a SIBA key), about 7,000 input tokens per request on the first model, replies up to 4,000 tokens. To fit, sibac keeps tool output and history short there, reads long files in pieces, and summarises the conversation once on its own when a request is too large. A short busy signal is waited out; at the daily cap it says so and stops. Large tasks go better with your own key.
 - `siba-oak` is chat only: it sees only the last few turns, answers briefly, and is offline at times (it runs on a small server).

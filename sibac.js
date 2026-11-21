@@ -42,8 +42,9 @@ const str = (description) => ({ type: 'string', description });
 const slashes = (p) => p.split(path.sep).join('/');
 // Every file under a folder, skipping dependency and build folders (links to folders are not followed).
 // sibac's own settings folder (config with the key, saved conversations) is never searched, even when the search starts above it.
-const ownHome = (f) => { try { return fs.realpathSync(f) === fs.realpathSync(store.home()); } catch { return false; } };
+const ownHome = (f) => { try { const r = path.relative(fs.realpathSync(store.home()), fs.realpathSync(f)); return !r.startsWith('..') && !path.isAbsolute(r); } catch { return false; } };   // the folder itself or anything under it
 function* files(dir) {
+  if (ownHome(dir)) return;   // also when the search starts in it or below it
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const f = path.join(dir, e.name);
     if (e.isDirectory()) { if (!SKIP.has(e.name) && !ownHome(f)) yield* files(f); } else if (e.isFile()) yield f;
@@ -220,7 +221,7 @@ function guard(name, p) {
   if (!inside(p)) return 'Outside this folder. ';   // also true for a link that dangles, before real() could throw on it
   const full = real(p);
   const h = store.home(), r = h && path.relative(real(h), full);
-  if (r !== undefined && r !== '' && !r.startsWith('..') && !path.isAbsolute(r)) return 'SIBA settings and saved conversations. ';
+  if (r !== undefined && !r.startsWith('..') && !path.isAbsolute(r)) return 'SIBA settings and saved conversations. ';
   if (!READS.has(name) && path.relative(process.cwd(), full).split(path.sep).some(gitName)) return 'Git settings and hooks. ';
   return '';
 }

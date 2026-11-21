@@ -1,6 +1,6 @@
 {
   "name": "sibac",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "SIBA Code: a coding agent for your terminal. Works straight after install on SIBA's free hosted line (open models, no key), or with any OpenAI-compatible endpoint and your own key. It asks before every file change and command.",
   "bin": { "sibac": "sibac.js" },
   "files": ["sibac.js", "lib/", "skills/", "README.md", "LICENSE"],

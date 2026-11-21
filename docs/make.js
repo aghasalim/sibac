@@ -9,7 +9,7 @@ t(0, '╭' + '─'.repeat(68) + '╮', 'b'); nl();
 nl();
 logo.forEach((r, i) => {
   t(2, r, 'a');
-  if (i === 0) { t(31, 'SIBA Code', 'w'); t(42, 'v0.2.2', 'd'); }
+  if (i === 0) { t(31, 'SIBA Code', 'w'); t(42, 'v0.2.3', 'd'); }
   if (i === 1) t(31, 'Coding agent for your terminal', 'f');
   if (i === 3) { t(31, 'folder', 'd'); t(39, '~/my-project', 'f'); }
   if (i === 4) { t(31, 'model', 'd'); t(39, 'SIBA hosted · siba-code', 'f'); }

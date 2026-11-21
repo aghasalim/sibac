@@ -5,7 +5,7 @@ process.env.SIBAC_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-home-')); 
 for (const k of ['SIBAC_BASE_URL', 'SIBAC_MODEL', 'SIBAC_API_KEY', 'SIBAC_TTY']) delete process.env[k];
 const { TOOLS, SCHEMA, COMMANDS, inside, abs, allowed, vis, label, md, plain, banner, VERSION, globRe, slash, complete, backup, undo, trim, settle, attach, system, skillList, command, act, who } = require('./sibac.js');
 const api = require('./lib/api.js'), store = require('./lib/store.js'), ui = require('./lib/ui.js');
-assert.strictEqual(VERSION, '0.2.2');
+assert.strictEqual(VERSION, '0.2.3');
 
 process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-')));
 const B = String.fromCharCode(92), ESC = String.fromCodePoint(0x1b);
@@ -53,6 +53,8 @@ const quiet = async (fn) => { const log = console.log, lines = []; console.log =
   const hm = fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-hm-')); fs.mkdirSync(path.join(hm, 'h')); fs.writeFileSync(path.join(hm, 'h', 'config.json'), 'SECRETKEY'); fs.writeFileSync(path.join(hm, 'ok.txt'), 'SECRETKEY');
   const home0 = process.env.SIBAC_HOME; process.env.SIBAC_HOME = path.join(hm, 'h'); const cwd0 = process.cwd(); process.chdir(hm);
   assert.strictEqual(TOOLS.grep.run({ pattern: 'SECRETKEY' }), 'ok.txt:1: SECRETKEY'); assert.strictEqual(TOOLS.glob.run({ pattern: '*.json' }), 'no file matches');
+  process.chdir(path.join(hm, 'h')); assert.strictEqual(TOOLS.grep.run({ pattern: 'SECRETKEY' }), 'no matches'); assert.strictEqual(TOOLS.glob.run({ pattern: '*' }), 'no file matches');   // started inside it
+  assert.strictEqual(await allowed('list_dir', { path: '.' }, { yes: true }), false); assert.strictEqual(await allowed('read_file', { path: 'config.json' }, { yes: true }), false);
   process.chdir(cwd0); if (home0 === undefined) delete process.env.SIBAC_HOME; else process.env.SIBAC_HOME = home0;
 
   // ---- the permission gate ----
