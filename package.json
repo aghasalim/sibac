@@ -8,7 +8,7 @@
   "engines": { "node": ">=18" },
   "keywords": ["cli", "coding-agent", "terminal", "ai", "openai-compatible", "siba"],
   "author": "SIBA (https://siba.az)",
-  "homepage": "https://siba.az",
+  "homepage": "https://code.siba.az",
   "repository": "github:aghasalim/sibac",
   "license": "MIT"
 }

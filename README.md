@@ -1,6 +1,6 @@
 # sibac (SIBA Code)
 
-A coding agent for your terminal, made by [SIBA](https://siba.az). You describe a task; it reads your files, proposes changes and commands, and asks before it does any of them. No dependencies, Node.js only.
+A coding agent for your terminal, made by [SIBA](https://siba.az). Website and install line: [code.siba.az](https://code.siba.az). You describe a task; it reads your files, proposes changes and commands, and asks before it does any of them. No dependencies, Node.js only.
 
 It works straight after install: with no settings it answers through SIBA's hosted line, free and without a key.
 
