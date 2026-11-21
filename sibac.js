@@ -5,7 +5,7 @@
 // Speaks the OpenAI chat-completions protocol: to SIBA's hosted line by default, or to the endpoint chosen with /login.
 // lib/ui.js prints, lib/api.js talks to the network, lib/store.js keeps the config, conversations and skills.
 'use strict';
-const fs = require('fs'), path = require('path'), cp = require('child_process');
+const fs = require('fs'), path = require('path'), cp = require('child_process'), os = require('os');
 const readline = require('readline/promises'), { Writable } = require('stream');
 const ui = require('./lib/ui.js'), api = require('./lib/api.js'), store = require('./lib/store.js');
 const { dim, bold, red, green, accent, vis, md, plain, tail, banner } = ui;
@@ -206,16 +206,31 @@ function show(name, a) {
   const p = preview(name, a);
   if (p) console.log(p);
 }
+// The tools that only read: no question inside the working folder, always one outside it.
+const READS = new Set(['read_file', 'list_dir', 'glob', 'grep']);
+// Git settings and hooks run code the next time git runs, so a write there needs a yes every time.
+const GITSET = new Set(['.git', '.gitattributes', '.gitmodules']);
+// Why a path needs a fresh yes (and no "always", no --yes), or '' when the folder rules are enough.
+function guard(name, p) {
+  if (p === null) return '';
+  if (!inside(p)) return 'Outside this folder. ';   // also true for a link that dangles, before real() could throw on it
+  const full = real(p);
+  const h = store.home(), r = h && path.relative(real(h), full);
+  if (r !== undefined && r !== '' && !r.startsWith('..') && !path.isAbsolute(r)) return 'SIBA settings and saved conversations. ';
+  if (!READS.has(name) && path.relative(process.cwd(), full).split(path.sep).some((x) => GITSET.has(x.toLowerCase()))) return 'Git settings and hooks. ';
+  return '';
+}
 async function allowed(name, args, ctx) {
   const t = TOOLS[name];
-  if (!t.ask) return true;
-  const outside = args.path !== undefined && !inside(abs(args.path));   // a change outside the working folder is always confirmed
-  if ((ctx.yes || always.has(name)) && !outside) return true;
+  if (!t.ask && !READS.has(name)) return true;
+  const warn = guard(name, args.path !== undefined ? abs(args.path) : null);   // a change outside the working folder is always confirmed, and so is a read
+  if (!warn && !t.ask) return true;
+  if ((ctx.yes || always.has(name)) && !warn) return true;
   if (!ctx.rl) return false;
-  const whole = preview(name, args, true), once = outside || t.once;
+  const whole = preview(name, args, true), once = !!warn || t.once;
   const keys = (once ? 'y yes · n no' : 'y yes · a always this session · n no') + (whole ? ' · v view all' : '');
   for (;;) {
-    const a = String(await ctx.rl.question('  ' + (outside ? red('Outside this folder. ') : '') + bold('Allow? ') + dim(keys) + accent(' › '), { signal: ctx.signal })).trim().toLowerCase();
+    const a = String(await ctx.rl.question('  ' + (warn ? red(warn) : '') + bold('Allow? ') + dim(keys) + accent(' › '), { signal: ctx.signal })).trim().toLowerCase();
     if (a.startsWith('v') && whole) { console.log(whole); continue; }
     if (a.startsWith('a') && !once) { always.add(name); return true; }
     return a.startsWith('y');
@@ -482,11 +497,11 @@ async function compact(S) {
   say(`  Compacted: ${size(turns).toLocaleString('en-US')} characters in ${turns.length} messages became ${size(S.messages.slice(1)).toLocaleString('en-US')}.`);
 }
 function diff() {
-  const git = (...a) => cp.spawnSync('git', a, { cwd: process.cwd(), encoding: 'utf8', maxBuffer: 32e6 });
+  const git = (...a) => cp.spawnSync('git', ['-c', 'core.fsmonitor=false', '-c', 'core.hooksPath=' + os.devNull, ...a], { cwd: process.cwd(), encoding: 'utf8', maxBuffer: 32e6 });
   const st = git('status', '--short');
   if (st.error || st.status !== 0) return say('  This folder is not a git repository (or git is not installed), so there is no diff to show.');
-  let d = git('diff', 'HEAD');
-  if (d.status !== 0) d = git('diff');   // a repository without a first commit has no HEAD
+  let d = git('diff', '--no-ext-diff', '--no-textconv', 'HEAD');
+  if (d.status !== 0) d = git('diff', '--no-ext-diff', '--no-textconv');   // a repository without a first commit has no HEAD
   const lines = (st.stdout + d.stdout).split('\n').filter((l, i, all) => l || i < all.length - 1);
   if (!lines.join('').trim()) return say('  No changes: the folder matches the last commit.');
   console.log(lines.slice(0, 400).map((l) => '  ' + (/^\+/.test(l) ? green : /^-/.test(l) ? red : /^@@/.test(l) ? accent : dim)(vis(l))).join('\n'));

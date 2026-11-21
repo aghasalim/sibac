@@ -136,7 +136,7 @@ test('no settings: answers through the hosted line without a key; creates and ru
   assert.match(r.out, /s · about [\d,]+ tokens · SIBA hosted · mock\/upstream-model/);   // the status line names the model that really answered; this stream carried no token count
   assert.ok(!r.out.includes('dropped'));
   const reqs = of('hosted').slice(-3);
-  assert.deepStrictEqual(reqs.map((q) => [q.headers['x-sibac-version'], q.headers['user-agent'], q.headers.authorization, q.headers.origin, q.body.model, q.body.stream, q.body.tool_choice]), Array(3).fill(['0.2.0', 'sibac/0.2.0', undefined, undefined, 'siba-code', true, 'auto']));
+  assert.deepStrictEqual(reqs.map((q) => [q.headers['x-sibac-version'], q.headers['user-agent'], q.headers.authorization, q.headers.origin, q.body.model, q.body.stream, q.body.tool_choice]), Array(3).fill(['0.2.1', 'sibac/0.2.1', undefined, undefined, 'siba-code', true, 'auto']));
   assert.strictEqual(reqs[1].body.messages[2].tool_calls[0].function.name, 'repo_browser.write_file');
   assert.strictEqual(reqs[1].body.messages[2].reasoning, 'I should write the file first.');   // reasoning goes back with the call
   assert.match(reqs[2].body.messages.at(-1).content, /^exit 0\nhi from sibac/);
@@ -240,7 +240,7 @@ test('a broken saved endpoint ("1") does not fail every message when nobody can 
 });
 test('the plain commands: --version, --help, update, doctor, an unknown option, no task', async () => {
   const o = { cwd: tmp('cmd'), home: tmp('home') };
-  assert.strictEqual((await run(['--version'], o)).out, '0.2.0\n');
+  assert.strictEqual((await run(['--version'], o)).out, '0.2.1\n');
   assert.match((await run(['--help'], o)).out, /sibac -p, --print "task"[\s\S]*sibac doctor[\s\S]*open models \(not a SIBA-trained one\)/);
   assert.match((await run(['update'], o)).out, /npm install -g https:\/\/github\.com\/aghasalim\/sibac\/tarball\/main/);
   let r = await run(['doctor'], o);
@@ -298,7 +298,7 @@ test('first run: the menu survives "1" typed as an address; then Tab, the / menu
   await s.expect(/API key \[Enter for none\]: /); s.send('\r');
   await s.expect(/Saved in .*config\.json/);
   assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(home, 'config.json'), 'utf8')), { baseUrl: base('hosted'), model: 'mock-model' });
-  await s.expect(/╭─+╮[\s\S]*SIBA Code  v0\.2\.0[\s\S]*╰─+╯[\s\S]*› $/);
+  await s.expect(/╭─+╮[\s\S]*SIBA Code  v0.2.1[\s\S]*╰─+╯[\s\S]*› $/);
 
   s.send('/he\t');                                                                      // Tab completes the command
   await s.expect(/\/help/); s.send('\r');
@@ -349,7 +349,7 @@ test('first run: the menu survives "1" typed as an address; then Tab, the / menu
   s.send('/diff\r');
   await s.expect(/not a git repository/);
   s.send('/status\r');
-  await s.expect(/version\s+0\.2\.0\n\s+endpoint\s+http:\/\/127[\s\S]*key\s+none[\s\S]*tokens\s+about [\d,]+ this session[\s\S]*› $/);
+  await s.expect(/version\s+0.2.1\n\s+endpoint\s+http:\/\/127[\s\S]*key\s+none[\s\S]*tokens\s+about [\d,]+ this session[\s\S]*› $/);
 
   s.send('slow please\r');
   await s.expect(/Slow part 1/); s.send(CTRL_C);                                        // Ctrl+C in a reply cancels that reply only

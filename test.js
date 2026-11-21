@@ -5,7 +5,7 @@ process.env.SIBAC_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-home-')); 
 for (const k of ['SIBAC_BASE_URL', 'SIBAC_MODEL', 'SIBAC_API_KEY', 'SIBAC_TTY']) delete process.env[k];
 const { TOOLS, SCHEMA, COMMANDS, inside, abs, allowed, vis, label, md, plain, banner, VERSION, globRe, slash, complete, backup, undo, trim, settle, attach, system, skillList, command, act, who } = require('./sibac.js');
 const api = require('./lib/api.js'), store = require('./lib/store.js'), ui = require('./lib/ui.js');
-assert.strictEqual(VERSION, '0.2.0');
+assert.strictEqual(VERSION, '0.2.1');
 
 process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-')));
 const B = String.fromCharCode(92), ESC = String.fromCodePoint(0x1b);
@@ -51,7 +51,19 @@ const quiet = async (fn) => { const log = console.log, lines = []; console.log =
 
   // ---- the permission gate ----
   assert.ok(inside(abs('a/b.txt')) && !inside(abs('../x')) && !inside(path.parse(process.cwd()).root));
-  assert.strictEqual(await allowed('read_file', { path: '../x' }, {}), true);              // reads never ask
+  assert.strictEqual(await allowed('read_file', { path: 'a/b.txt' }, {}), true);          // reads inside the folder never ask
+  assert.strictEqual(await allowed('grep', { pattern: 'x' }, {}), true);
+  assert.strictEqual(await allowed('read_file', { path: '../x' }, {}), false);            // a read outside the folder asks: nobody to ask, refused
+  assert.strictEqual(await allowed('read_file', { path: '../x' }, { yes: true }), false); // --yes does not reach outside the folder, for reads too
+  assert.strictEqual(await allowed('list_dir', { path: os.homedir() }, { yes: true }), false);
+  const yesRl = { question: async () => 'y' };                                             // the user says yes once: that must not stick
+  assert.strictEqual(await allowed('read_file', { path: '../x' }, { rl: yesRl }), true);
+  assert.strictEqual(await allowed('read_file', { path: '../x' }, {}), false);
+  assert.strictEqual(await allowed('write_file', { path: '.git/hooks/pre-commit' }, { yes: true }), false);   // git settings and hooks always ask
+  assert.strictEqual(await allowed('edit_file', { path: '.GITATTRIBUTES' }, { yes: true }), false);
+  assert.strictEqual(await allowed('write_file', { path: 'sub/.git/config' }, { yes: true }), false);
+  assert.strictEqual(await allowed('write_file', { path: '.gitignore' }, { yes: true }), true);               // an ordinary file next to them still follows --yes
+  assert.strictEqual(await allowed('read_file', { path: '.git/config' }, {}), true);                          // reading git files is fine
   assert.strictEqual(await allowed('write_file', { path: 'c.txt' }, {}), false);           // nobody to ask: refused
   assert.strictEqual(await allowed('write_file', { path: 'c.txt' }, { yes: true }), true);
   assert.strictEqual(await allowed('write_file', { path: '../c.txt' }, { yes: true }), false);   // --yes does not reach outside the folder
