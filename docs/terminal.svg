@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="631.2" height="559" viewBox="0 0 631.2 559" role="img" aria-label="The sibac start screen and an example task">
+<style>text{font:14px 'Cascadia Mono',Consolas,Menlo,'DejaVu Sans Mono',monospace}.f{fill:#e6edf3}.d{fill:#8b98a5}.w{fill:#fff;font-weight:700}.a{fill:#3da9fc}.b{fill:#3b4a5a}.y{fill:#e3b341}</style>
+<rect width="631.2" height="559" rx="10" fill="#0d1117"/>
+<rect width="631.2" height="28" rx="10" fill="#161b22"/><rect y="18" width="631.2" height="10" fill="#161b22"/>
+<circle cx="18" cy="14" r="5" fill="#ff5f56"/><circle cx="36" cy="14" r="5" fill="#ffbd2e"/><circle cx="54" cy="14" r="5" fill="#27c93f"/>
+<text class="b" x="24.0" y="67" xml:space="preserve">╭────────────────────────────────────────────────────────────────────╮</text>
+<text class="a" x="40.8" y="109" xml:space="preserve">███████ ██ ██████   █████ </text>
+<text class="w" x="284.4" y="109" xml:space="preserve">SIBA Code</text>
+<text class="d" x="376.8" y="109" xml:space="preserve">v0.2.0</text>
+<text class="a" x="40.8" y="130" xml:space="preserve">██      ██ ██   ██ ██   ██</text>
+<text class="f" x="284.4" y="130" xml:space="preserve">Coding agent for your terminal</text>
+<text class="a" x="40.8" y="151" xml:space="preserve">███████ ██ ██████  ███████</text>
+<text class="a" x="40.8" y="172" xml:space="preserve">     ██ ██ ██   ██ ██   ██</text>
+<text class="d" x="284.4" y="172" xml:space="preserve">folder</text>
+<text class="f" x="351.6" y="172" xml:space="preserve">~/my-project</text>
+<text class="a" x="40.8" y="193" xml:space="preserve">███████ ██ ██████  ██   ██</text>
+<text class="d" x="284.4" y="193" xml:space="preserve">model</text>
+<text class="f" x="351.6" y="193" xml:space="preserve">SIBA hosted · siba-code</text>
+<text class="b" x="24.0" y="235" xml:space="preserve">╰────────────────────────────────────────────────────────────────────╯</text>
+<text class="d" x="40.8" y="256" xml:space="preserve">Describe a task in any language, for example "explain this project" or "fix the failing test"</text>
+<text class="d" x="40.8" y="277" xml:space="preserve">/help commands · Tab completes · @file attaches a file · Ctrl+C cancels a reply</text>
+<text class="a" x="24.0" y="319" xml:space="preserve">›</text>
+<text class="w" x="40.8" y="319" xml:space="preserve">fix the failing test in tests/</text>
+<text class="a" x="40.8" y="361" xml:space="preserve">◆ run_command</text>
+<text class="f" x="158.4" y="361" xml:space="preserve">npm test</text>
+<text class="y" x="57.6" y="382" xml:space="preserve">Run this command?  [y] yes  [n] no</text>
+<text class="f" x="40.8" y="424" xml:space="preserve">The test expected 3 items but the loop stops at 2. I will change the range in</text>
+<text class="f" x="40.8" y="445" xml:space="preserve">src/list.js and run the tests again.</text>
+<text class="a" x="40.8" y="487" xml:space="preserve">◆ edit_file</text>
+<text class="f" x="150.0" y="487" xml:space="preserve">src/list.js</text>
+<text class="y" x="57.6" y="508" xml:space="preserve">Change this file?  [y] yes  [a] always  [n] no  [v] view</text>
+</svg>

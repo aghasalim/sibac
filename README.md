@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/hero.svg" alt="sibac: SIBA Code, a coding agent for your terminal" width="800"></p>
+
 # sibac (SIBA Code)
 
 A coding agent for your terminal, made by [SIBA](https://siba.az). Website and install line: [code.siba.az](https://code.siba.az). You describe a task; it reads your files, proposes changes and commands, and asks before it does any of them. No dependencies, Node.js only.
@@ -5,6 +7,24 @@ A coding agent for your terminal, made by [SIBA](https://siba.az). Website and i
 It works straight after install: with no settings it answers through SIBA's hosted line, free and without a key.
 
 **Which model answers.** The hosted line (`siba-code`) runs open models, not a model trained by SIBA: at this release Qwen 3.8 27B first, and OpenAI's open-weight gpt-oss models when that one is busy, so the model can change from one reply to the next. The name of the model that really answered is printed under every reply. The one SIBA-trained model on offer is `siba-oak`, a small Azerbaijani model for plain chat: it cannot read or change files. You can also point sibac at Groq or any other OpenAI-compatible endpoint with your own key.
+
+<p align="center"><img src="docs/terminal.svg" alt="The sibac start screen and an example task (illustration: the start screen is the real one, the example session is shortened)" width="720"></p>
+
+## How it works
+
+```mermaid
+flowchart LR
+  you([You type a task]) --> sibac[sibac<br/>on your computer]
+  sibac -->|task, files it read,<br/>command output| model[(Model endpoint<br/>SIBA hosted, Groq,<br/>or your own)]
+  model -->|reply and tool requests| sibac
+  sibac --> gate{Permission gate}
+  gate -->|you say yes| tools[Read, edit, run,<br/>fetch]
+  gate -->|you say no| model
+  tools -->|result| model
+  sibac -->|answer| you
+```
+
+The model only proposes; sibac does the work on your machine, and only after the gate lets it through.
 
 ## Install
 
@@ -91,9 +111,47 @@ Tab completes commands and `@paths`; typing `/` lists the matching commands unde
 | Fetch a web address | Yes, every time. Only public http(s) addresses: local and private ones are refused |
 | Change anything outside the current folder | Yes, every time, with a warning |
 
+```mermaid
+flowchart TD
+  A[Model asks for a tool] --> B{Does it only read?}
+  B -->|yes| R[Run it, no question]
+  B -->|no| C{Outside the<br/>current folder?}
+  C -->|yes| W[Always ask, with a warning<br/>--yes does not skip this]
+  C -->|no| D{Nobody can answer<br/>and no --yes?}
+  D -->|yes| X[Refuse]
+  D -->|no| E{--yes given?}
+  E -->|yes| R2[Run it]
+  E -->|no| Q[Ask: y / a / n / v]
+  Q -->|y or a| R2
+  Q -->|n| X
+  W -->|y| R2
+  W -->|n| X
+```
+
 `--yes` approves file changes, commands and web fetches without asking. It never approves a change outside the current folder. When nobody can answer (a script without `--yes`), every change, command and fetch is refused.
 
 `/undo` covers what the file tools wrote in the running session. It does not undo what a shell command did.
+
+## A typical session
+
+```mermaid
+sequenceDiagram
+  participant U as You
+  participant S as sibac
+  participant M as Model
+  U->>S: fix the failing test
+  S->>M: task + project guide + skill names
+  M-->>S: run npm test
+  S->>U: Run this command? [y/n]
+  U->>S: y
+  S->>M: test output
+  M-->>S: edit src/list.js
+  S->>U: Change this file? [y/a/n/v]
+  U->>S: y
+  S->>M: done, test again
+  M-->>S: explanation
+  S->>U: reply and the model that answered
+```
 
 ## Skills
 

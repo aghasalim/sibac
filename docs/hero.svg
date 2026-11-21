@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="sibac: SIBA Code, a coding agent for your terminal">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4ed8"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+<rect width="900" height="220" rx="14" fill="#0d1117"/>
+<rect x="1" y="1" width="898" height="218" rx="13" fill="none" stroke="url(#g)" stroke-width="2"/>
+<text x="48" y="104" font-family="Cascadia Mono,Consolas,Menlo,monospace" font-size="64" font-weight="700" fill="url(#g)">sibac</text>
+<text x="50" y="146" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#e6edf3">SIBA Code: a coding agent for your terminal</text>
+<text x="50" y="178" font-family="Cascadia Mono,Consolas,Menlo,monospace" font-size="15" fill="#8b98a5">npm install -g https://github.com/aghasalim/sibac/tarball/main</text>
+<g font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="14" fill="#e6edf3">
+<rect x="640" y="48" width="212" height="30" rx="15" fill="#161b22" stroke="#30363d"/><text x="746" y="68" text-anchor="middle">no key needed</text>
+<rect x="640" y="88" width="212" height="30" rx="15" fill="#161b22" stroke="#30363d"/><text x="746" y="108" text-anchor="middle">asks before every change</text>
+<rect x="640" y="128" width="212" height="30" rx="15" fill="#161b22" stroke="#30363d"/><text x="746" y="148" text-anchor="middle">zero dependencies</text>
+</g></svg>
