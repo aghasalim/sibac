@@ -41,10 +41,12 @@ const clip = (s, n = 20000) => (s.length > n ? s.slice(0, n) + `\n... [${s.lengt
 const str = (description) => ({ type: 'string', description });
 const slashes = (p) => p.split(path.sep).join('/');
 // Every file under a folder, skipping dependency and build folders (links to folders are not followed).
+// sibac's own settings folder (config with the key, saved conversations) is never searched, even when the search starts above it.
+const ownHome = (f) => { try { return fs.realpathSync(f) === fs.realpathSync(store.home()); } catch { return false; } };
 function* files(dir) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const f = path.join(dir, e.name);
-    if (e.isDirectory()) { if (!SKIP.has(e.name)) yield* files(f); } else if (e.isFile()) yield f;
+    if (e.isDirectory()) { if (!SKIP.has(e.name) && !ownHome(f)) yield* files(f); } else if (e.isFile()) yield f;
   }
 }
 // A glob as a regular expression: * stays within a folder, ** crosses folders, ? is one character, {a,b} is either.
@@ -210,6 +212,8 @@ function show(name, a) {
 const READS = new Set(['read_file', 'list_dir', 'glob', 'grep']);
 // Git settings and hooks run code the next time git runs, so a write there needs a yes every time.
 const GITSET = new Set(['.git', '.gitattributes', '.gitmodules']);
+// Windows reads ".git.", ".git ", ".git::$INDEX_ALLOCATION" and the short name GIT~1 as the same entry, so compare the canonical form.
+const gitName = (x) => { const n = x.toLowerCase().split(':')[0].replace(/[. ]+$/, ''); return GITSET.has(n) || /^(git|gitatt|gitmod)~[0-9]+/.test(n); };
 // Why a path needs a fresh yes (and no "always", no --yes), or '' when the folder rules are enough.
 function guard(name, p) {
   if (p === null) return '';
@@ -217,7 +221,7 @@ function guard(name, p) {
   const full = real(p);
   const h = store.home(), r = h && path.relative(real(h), full);
   if (r !== undefined && r !== '' && !r.startsWith('..') && !path.isAbsolute(r)) return 'SIBA settings and saved conversations. ';
-  if (!READS.has(name) && path.relative(process.cwd(), full).split(path.sep).some((x) => GITSET.has(x.toLowerCase()))) return 'Git settings and hooks. ';
+  if (!READS.has(name) && path.relative(process.cwd(), full).split(path.sep).some(gitName)) return 'Git settings and hooks. ';
   return '';
 }
 async function allowed(name, args, ctx) {

@@ -106,7 +106,7 @@ Tab completes commands and `@paths`; typing `/` lists the matching commands unde
 | Action | Asks? |
 |---|---|
 | Read a file, list a folder, search or find files inside the current folder; show a task list; load a skill | No |
-| Read, list or search outside the current folder, or in sibac's own settings and saved conversations (`~/.sibac`) | Yes, every time, with a warning. `--yes` does not skip it |
+| Read, list or search outside the current folder, or in sibac's own settings and saved conversations (`~/.sibac`, which searches also skip) | Yes, every time, with a warning. `--yes` does not skip it |
 | Create or change a file in the current folder | Yes: `y` once, `a` for the rest of the session, `n` no, `v` shows the whole change first |
 | Change Git settings or hooks (`.git/`, `.gitattributes`, `.gitmodules`) | Yes, every time. `--yes` and "always" do not skip it, because git runs those files |
 | Run a shell command | Yes, every time |
@@ -184,7 +184,7 @@ Your task, the files sibac reads, the output of the commands it runs, the skill 
 
 Conversations are saved as JSON in `~/.sibac/sessions/`, per folder, for `--continue` and `/resume`. They hold the messages (including file contents the agent read) and never the key. Delete the folder to forget them.
 
-## Limits in 0.2.1
+## Limits in 0.2.2
 
 - The hosted line is free and shared. At this release: 10 requests a minute and 200 a day per address (60 a minute and 2,000 a day with a SIBA key), about 7,000 input tokens per request on the first model, replies up to 4,000 tokens. To fit, sibac keeps tool output and history short there, reads long files in pieces, and summarises the conversation once on its own when a request is too large. A short busy signal is waited out; at the daily cap it says so and stops. Large tasks go better with your own key.
 - `siba-oak` is chat only: it sees only the last few turns, answers briefly, and is offline at times (it runs on a small server).

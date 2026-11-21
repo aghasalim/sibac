@@ -5,7 +5,7 @@ process.env.SIBAC_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-home-')); 
 for (const k of ['SIBAC_BASE_URL', 'SIBAC_MODEL', 'SIBAC_API_KEY', 'SIBAC_TTY']) delete process.env[k];
 const { TOOLS, SCHEMA, COMMANDS, inside, abs, allowed, vis, label, md, plain, banner, VERSION, globRe, slash, complete, backup, undo, trim, settle, attach, system, skillList, command, act, who } = require('./sibac.js');
 const api = require('./lib/api.js'), store = require('./lib/store.js'), ui = require('./lib/ui.js');
-assert.strictEqual(VERSION, '0.2.1');
+assert.strictEqual(VERSION, '0.2.2');
 
 process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-')));
 const B = String.fromCharCode(92), ESC = String.fromCodePoint(0x1b);
@@ -49,6 +49,12 @@ const quiet = async (fn) => { const log = console.log, lines = []; console.log =
   assert.strictEqual(TOOLS.glob.run({ pattern: '*.py' }), 'no file matches');
   assert.ok(globRe('a.b').test('a.b') && !globRe('a.b').test('axb') && globRe('src/**').test('src/a/b') && !globRe('(x').test('x'));   // regex characters in a pattern are literal
 
+  // the search skips sibac's own settings folder even when it starts above it
+  const hm = fs.mkdtempSync(path.join(os.tmpdir(), 'sibac-hm-')); fs.mkdirSync(path.join(hm, 'h')); fs.writeFileSync(path.join(hm, 'h', 'config.json'), 'SECRETKEY'); fs.writeFileSync(path.join(hm, 'ok.txt'), 'SECRETKEY');
+  const home0 = process.env.SIBAC_HOME; process.env.SIBAC_HOME = path.join(hm, 'h'); const cwd0 = process.cwd(); process.chdir(hm);
+  assert.strictEqual(TOOLS.grep.run({ pattern: 'SECRETKEY' }), 'ok.txt:1: SECRETKEY'); assert.strictEqual(TOOLS.glob.run({ pattern: '*.json' }), 'no file matches');
+  process.chdir(cwd0); if (home0 === undefined) delete process.env.SIBAC_HOME; else process.env.SIBAC_HOME = home0;
+
   // ---- the permission gate ----
   assert.ok(inside(abs('a/b.txt')) && !inside(abs('../x')) && !inside(path.parse(process.cwd()).root));
   assert.strictEqual(await allowed('read_file', { path: 'a/b.txt' }, {}), true);          // reads inside the folder never ask
@@ -62,6 +68,7 @@ const quiet = async (fn) => { const log = console.log, lines = []; console.log =
   assert.strictEqual(await allowed('write_file', { path: '.git/hooks/pre-commit' }, { yes: true }), false);   // git settings and hooks always ask
   assert.strictEqual(await allowed('edit_file', { path: '.GITATTRIBUTES' }, { yes: true }), false);
   assert.strictEqual(await allowed('write_file', { path: 'sub/.git/config' }, { yes: true }), false);
+  for (const alias of ['.git./config', '.git /hooks/x', 'GIT~1/hooks/x', '.gitattributes.', '.git::$INDEX_ALLOCATION/x']) assert.strictEqual(await allowed('write_file', { path: alias }, { yes: true }), false, alias);   // Windows aliases of the same entries
   assert.strictEqual(await allowed('write_file', { path: '.gitignore' }, { yes: true }), true);               // an ordinary file next to them still follows --yes
   assert.strictEqual(await allowed('read_file', { path: '.git/config' }, {}), true);                          // reading git files is fine
   assert.strictEqual(await allowed('write_file', { path: 'c.txt' }, {}), false);           // nobody to ask: refused
