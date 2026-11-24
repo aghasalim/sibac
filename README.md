@@ -10,6 +10,24 @@ It works straight after install: with no settings it answers through SIBA's host
 
 <p align="center"><img src="docs/terminal.svg" alt="The sibac start screen and an example task (illustration: the start screen is the real one, the example session is shortened)" width="720"></p>
 
+<details>
+<summary>Contents</summary>
+
+- [How it works](#how-it-works)
+- [Install](#install)
+- [First run](#first-run)
+- [Use](#use)
+- [What it asks permission for](#what-it-asks-permission-for)
+- [A typical session](#a-typical-session)
+- [Skills](#skills)
+- [Project guide](#project-guide)
+- [What is sent where](#what-is-sent-where)
+- [Limits in 0.2.3](#limits-in-023)
+- [Development](#development)
+- [License](#license)
+
+</details>
+
 ## How it works
 
 ```mermaid
