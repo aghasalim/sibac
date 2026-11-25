@@ -121,38 +121,7 @@ Tab completes commands and `@paths`; typing `/` lists the matching commands unde
 
 ## What it asks permission for
 
-| Action | Asks? |
-|---|---|
-| Read a file, list a folder, search or find files inside the current folder; show a task list; load a skill | No |
-| Read, list or search outside the current folder, or in sibac's own settings and saved conversations (`~/.sibac`, which searches also skip) | Yes, every time, with a warning. `--yes` does not skip it |
-| Create or change a file in the current folder | Yes: `y` once, `a` for the rest of the session, `n` no, `v` shows the whole change first |
-| Change Git settings or hooks (`.git/`, `.gitattributes`, `.gitmodules`) | Yes, every time. `--yes` and "always" do not skip it, because git runs those files |
-| Run a shell command | Yes, every time |
-| Fetch a web address | Yes, every time. Only public http(s) addresses: local and private ones are refused |
-| Change anything outside the current folder | Yes, every time, with a warning |
-
-```mermaid
-flowchart TD
-  A[Model asks for a tool] --> B{Does it only read?}
-  B -->|yes| R[Run it, no question]
-  B -->|no| C{Outside the<br/>current folder?}
-  C -->|yes| W[Always ask, with a warning<br/>--yes does not skip this]
-  C -->|no| D{Nobody can answer<br/>and no --yes?}
-  D -->|yes| X[Refuse]
-  D -->|no| E{--yes given?}
-  E -->|yes| R2[Run it]
-  E -->|no| Q[Ask: y / a / n / v]
-  Q -->|y or a| R2
-  Q -->|n| X
-  W -->|y| R2
-  W -->|n| X
-```
-
-`--yes` approves file changes, commands and web fetches without asking. It never approves a read or change outside the current folder, or a change to Git settings or hooks. When nobody can answer (a script without `--yes`), every change, command and fetch is refused.
-
-`/diff` runs git with hooks and the file-system monitor switched off, so a repository you did not write cannot run code through it.
-
-`/undo` covers what the file tools wrote in the running session. It does not undo what a shell command did.
+Reading inside the current folder needs no permission. File changes, shell commands, web fetches and anything outside the current folder are asked first. The full table, the decision diagram and what `--yes` does and does not skip are in [docs/permissions.md](docs/permissions.md).
 
 ## A typical session
 
@@ -177,20 +146,7 @@ sequenceDiagram
 
 ## Skills
 
-A skill is a markdown file with instructions for one kind of task, in the common `SKILL.md` format: a folder with a `SKILL.md` whose frontmatter has `name` and `description`, or a single `name.md`. sibac ships five (`/review`, `/explain`, `/test`, `/fix`, `/commit`) and reads yours from:
-
-- `.sibac/skills/` in the project
-- `~/.sibac/skills/` for all projects
-- `.claude/skills/` in the project, if it exists (read only)
-
-Run one with `/<name> what you want`. The model can also load one on its own when the task fits; only names and one-line descriptions are sent with every request.
-
-```
-sibac skills                              # list them
-sibac skills add owner/repo/path/to/skills    # install skill folders from a public GitHub repository
-```
-
-`skills add` downloads the repository archive, shows what it found and asks before it writes into `~/.sibac/skills`. It refuses archives with links or paths that leave their folder, and anything large (300 files, 1 MB a file, 8 MB in all). A skill is text the model will follow: read it before you rely on it.
+A skill is a markdown file with instructions for one kind of task. sibac ships five (`/review`, `/explain`, `/test`, `/fix`, `/commit`) and reads your own. Where they live and how to install more is in [docs/skills.md](docs/skills.md).
 
 ## Project guide
 
@@ -204,14 +160,7 @@ Conversations are saved as JSON in `~/.sibac/sessions/`, per folder, for `--cont
 
 ## Limits in 0.2.3
 
-- The hosted line is free and shared. At this release: 10 requests a minute and 200 a day per address (60 a minute and 2,000 a day with a SIBA key), about 7,000 input tokens per request on the first model, replies up to 4,000 tokens. To fit, sibac keeps tool output and history short there, reads long files in pieces, and summarises the conversation once on its own when a request is too large. A short busy signal is waited out; at the daily cap it says so and stops. Large tasks go better with your own key.
-- `siba-oak` is chat only: it sees only the last few turns, answers briefly, and is offline at times (it runs on a small server).
-- A free Groq key allows only a few thousand tokens a minute per model, so long tasks pause on rate limits there too.
-- Replies appear line by line as they arrive, not letter by letter.
-- Commands run in bash (Git Bash on Windows, PowerShell if it is missing), with a 2 minute limit and no interactive input.
-- `/undo` and the "always" answer last for the running session only.
-- sibac needs a real terminal for the session. In an old Git Bash window (mintty) Node sees no terminal: use Windows Terminal, or `winpty sibac`.
-- Colours use 24-bit codes where the terminal announces them (`COLORTERM`) and on Windows, 256 colours elsewhere; `NO_COLOR` switches colour and the start animation off.
+The hosted line is free, shared and rate limited, and `siba-oak` is chat only. The full list is in [docs/limits.md](docs/limits.md).
 
 ## Development
 
